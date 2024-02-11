@@ -1,6 +1,7 @@
 import flet as ft
 from flet import Column, Row, Container, TextField, Checkbox
 from flet_core.control import Control
+import settings
 
 
 def main(page: ft.Page) -> None:
@@ -8,6 +9,8 @@ def main(page: ft.Page) -> None:
     page.window_focused = True
     page.theme_mode = 'dark'
 
+    page.window_minimizable = False
+    page.window_maximizable = False
     page.window_resizable = False
     page.padding = 0
 
@@ -31,12 +34,12 @@ def main(page: ft.Page) -> None:
     pic_height = 182
 
     container_for_test = Container(
-                width=page.window_width,
-                height=pic_height,
-                opacity=100,
-                bgcolor=ft.colors.BLUE_300,
-                alignment=ft.alignment.center,
-            )
+        width=page.window_width,
+        height=pic_height,
+        opacity=100,
+        bgcolor=ft.colors.BLUE_300,
+        alignment=ft.alignment.center,
+    )
 
     nya_sound = ft.Audio(
         src='assets/nya.mp3',
@@ -86,12 +89,22 @@ def main(page: ft.Page) -> None:
         e.control.selected = not e.control.selected
         if e.control.selected:
             page.window_always_on_top = True
+            page.window_minimizable = False
+            page.window_maximizable = False
             e.control.tooltip = 'Unpin'
         else:
             page.window_always_on_top = False
+            page.window_minimizable = True
+            page.window_maximizable = True
             e.control.tooltip = 'Pin'
         e.control.update()
         page.update()
+
+    def on_click_settings(e):
+
+        ft.app(target=settings.main,
+               assets_dir='assets'
+               )
 
     def full_on_hover(e):
         menu.opacity = 100 if e.data == 'true' else 0
@@ -122,10 +135,11 @@ def main(page: ft.Page) -> None:
                     icon=ft.icons.SETTINGS_SHARP,
                     icon_color=ft.colors.WHITE,
                     tooltip='Settings',
+                    on_click=on_click_settings
 
                 ),
                 # Pin/unpin window
-                ft.IconButton(
+                pin_button := ft.IconButton(
                     icon=ft.icons.PUSH_PIN_OUTLINED,
                     icon_color=ft.colors.WHITE,
                     selected_icon=ft.icons.PUSH_PIN,
