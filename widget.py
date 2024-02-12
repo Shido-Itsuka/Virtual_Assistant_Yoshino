@@ -100,11 +100,35 @@ def main(page: ft.Page) -> None:
         e.control.update()
         page.update()
 
-    def on_click_settings(e):
+    def create_settings_window():
+        settings_button.data = True
+        settings_button.update()
+        settings_app = ft.app(target=settings.main,
+                              assets_dir='assets'
+                              )
+        if not settings_app:
+            settings_button.data = False
+            settings_button.update()
+            print(False)
+        else:
+            print(True)
 
-        ft.app(target=settings.main,
-               assets_dir='assets'
-               )
+    def on_click_settings(e):
+        if not e.data:
+            create_settings_window()
+            e.data = True
+            e.control.update()
+        elif not settings_app:
+            settings_app.main.Control.page.window_center()
+
+    def window_event(e):
+        if e.data == 'close':
+            page.window_destroy()
+            if settings_app:
+                settings_app.main.Control.page.window_destroy()
+
+    page.window_prevent_close = True
+    page.on_window_event = window_event
 
     def full_on_hover(e):
         menu.opacity = 100 if e.data == 'true' else 0
@@ -131,11 +155,12 @@ def main(page: ft.Page) -> None:
                     on_click=on_click_menu_button
                 ),
                 # Settings
-                ft.IconButton(
+                settings_button := ft.IconButton(
                     icon=ft.icons.SETTINGS_SHARP,
                     icon_color=ft.colors.WHITE,
                     tooltip='Settings',
-                    on_click=on_click_settings
+                    on_click=on_click_settings,
+                    data=False
 
                 ),
                 # Pin/unpin window
