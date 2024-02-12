@@ -17,8 +17,21 @@ def main(page: ft.Page) -> None:
         color_scheme_seed='#5a84ff'
     )
 
+    page.window_visible = False
+
+    def window_event(e):
+        if e.data == 'close':
+            page.window_destroy()
+
+    page.window_prevent_close = True
+    page.on_window_event = window_event
+
 
 if __name__ == '__main__':
-    ft.app(target=main,
-           assets_dir='assets'
-           )
+    abc = ft.app(target=main,
+                 assets_dir='assets'
+                 )
+    if not abc:
+        print(False)
+    else:
+        print(True)
