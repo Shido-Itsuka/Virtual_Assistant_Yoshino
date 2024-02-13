@@ -109,23 +109,27 @@ def main(page: ft.Page) -> None:
         if not settings_app:
             settings_button.data = False
             settings_button.update()
-            print(False)
+            print(f'settings window closed')
         else:
             print(True)
 
     def on_click_settings(e):
-        if not e.data:
-            create_settings_window()
+        print('settings button clicked!')
+        print('-' * 15)
+        if e.control.data == 0:
             e.data = True
             e.control.update()
-        elif not settings_app:
-            settings_app.main.Control.page.window_center()
+            print(f'settings button data {e.data}')
+            create_settings_window()
+        else:
+            print('Window already created')
 
     def window_event(e):
         if e.data == 'close':
-            page.window_destroy()
-            if settings_app:
-                settings_app.main.Control.page.window_destroy()
+            if settings_button.data:
+                pass
+            else:
+                page.window_destroy()
 
     page.window_prevent_close = True
     page.on_window_event = window_event
