@@ -34,31 +34,57 @@ def main(page: ft.Page) -> None:
 
     rail = ft.NavigationRail(
         selected_index=0,
-        label_type=ft.NavigationRailLabelType.ALL,
-        min_width=150,
-        min_extended_width=300,
-        leading=ft.FloatingActionButton(
-            icon=ft.icons.ADD,
-            text='Create'
+        label_type=ft.NavigationRailLabelType.SELECTED,
+        min_width=120,
+        min_extended_width=150,
+        leading=Column(
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            controls=[
+                ft.FloatingActionButton(
+                    icon=ft.icons.ADD,
+                    text='Create'
+                ),
+                ft.Divider(height=1),
+            ]
         ),
-        group_alignment=-1,
+        group_alignment=-0.9,
+        trailing=Column(
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            controls=[
+                ft.Divider(),
+                Container(
+                    content=Row(
+                        controls=[
+                            ft.Icon(
+                                name=ft.icons.PERSON
+                            ),
+                            ft.Text('Nickname'),
+                        ]
+                    )
+                )
+            ]
+        ),
+        indicator_shape=ft.RoundedRectangleBorder(radius=10),
         destinations=[
             ft.NavigationRailDestination(
                 icon=ft.icons.EDIT_OUTLINED,
                 selected_icon=ft.icons.EDIT,
-                label='Edit'
+                label='Edit',
+                padding=20,
             ),
 
             ft.NavigationRailDestination(
                 icon=ft.icons.SETTINGS_OUTLINED,
                 selected_icon=ft.icons.SETTINGS,
-                label='Settings'
+                label='Settings',
+                padding=20
             ),
 
             ft.NavigationRailDestination(
                 icon=ft.icons.INFO_OUTLINED,
                 selected_icon=ft.icons.INFO,
-                label='Info'
+                label='Info',
+                padding=20
             )
 
         ]
