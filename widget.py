@@ -158,11 +158,11 @@ def main(page: ft.Page) -> None:
                     tooltip='Mute',
                     on_click=on_click_menu_button
                 ),
-                # Settings
+                # Main menu
                 settings_button := ft.IconButton(
-                    icon=ft.icons.SETTINGS_SHARP,
+                    icon=ft.icons.DENSITY_MEDIUM,
                     icon_color=ft.colors.WHITE,
-                    tooltip='Settings',
+                    tooltip='Main menu',
                     on_click=on_click_settings,
                     data=False
 
