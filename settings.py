@@ -35,23 +35,62 @@ def main(page: ft.Page) -> None:
     rail = ft.NavigationRail(
         selected_index=0,
         label_type=ft.NavigationRailLabelType.SELECTED,
-        min_width=120,
+        height=500,
+        width=130,
+        min_width=130,
         min_extended_width=150,
+        bgcolor=ft.colors.TRANSPARENT,
         leading=Column(
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            horizontal_alignment=ft.alignment.center,
             controls=[
                 ft.FloatingActionButton(
                     icon=ft.icons.ADD,
-                    text='Create'
+                    text='Create',
                 ),
-                ft.Divider(height=1),
+
             ]
         ),
         group_alignment=-0.9,
-        trailing=Column(
+        indicator_shape=ft.RoundedRectangleBorder(
+            radius=10,
+
+        ),
+        destinations=[
+            ft.NavigationRailDestination(
+                icon=ft.icons.EDIT_OUTLINED,
+                selected_icon=ft.icons.EDIT,
+                label='Edit',
+                padding=40,
+
+            ),
+
+            ft.NavigationRailDestination(
+                icon=ft.icons.SETTINGS_OUTLINED,
+                selected_icon=ft.icons.SETTINGS,
+                label='Settings',
+                padding=40
+            ),
+
+            ft.NavigationRailDestination(
+                icon=ft.icons.INFO_OUTLINED,
+                selected_icon=ft.icons.INFO,
+                label='Info',
+                padding=40
+            )
+
+        ]
+    )
+
+    rail_container = Container(
+        width=130,
+        height=page.window_height,
+        padding=0,
+        bgcolor=ft.colors.BLACK12,
+        content=Column(
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
             controls=[
-                ft.Divider(),
+                rail,
                 Container(
                     content=Row(
                         controls=[
@@ -59,45 +98,30 @@ def main(page: ft.Page) -> None:
                                 name=ft.icons.PERSON
                             ),
                             ft.Text('Nickname'),
-                        ]
-                    )
+                        ],
+
+                    ),
+                    bgcolor=ft.colors.BLACK26,
+                    height=60,
+                    alignment=ft.alignment.center,
+                    padding=ft.padding.only(left=10)
                 )
             ]
-        ),
-        indicator_shape=ft.RoundedRectangleBorder(radius=10),
-        destinations=[
-            ft.NavigationRailDestination(
-                icon=ft.icons.EDIT_OUTLINED,
-                selected_icon=ft.icons.EDIT,
-                label='Edit',
-                padding=20,
-            ),
-
-            ft.NavigationRailDestination(
-                icon=ft.icons.SETTINGS_OUTLINED,
-                selected_icon=ft.icons.SETTINGS,
-                label='Settings',
-                padding=20
-            ),
-
-            ft.NavigationRailDestination(
-                icon=ft.icons.INFO_OUTLINED,
-                selected_icon=ft.icons.INFO,
-                label='Info',
-                padding=20
-            )
-
-        ]
+        )
     )
-
-
 
     main_container = Container(
         expand=True,
         content=Row(
             controls=[
-                rail,
-                ft.VerticalDivider(width=1),
+                Row(
+                    controls=[
+                        rail_container,
+                        ft.VerticalDivider(width=0)
+                    ],
+                    spacing=0
+                )
+                ,
 
             ]
         )
