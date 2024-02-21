@@ -32,6 +32,26 @@ def main(page: ft.Page) -> None:
     # page.window_bgcolor = ft.colors.TRANSPARENT
     # page.bgcolor = ft.colors.TRANSPARENT
 
+    def change_page(e):
+        match e.control.selected_index:
+            case 0:
+                main_body.content = edit_page
+            case 1:
+                main_body.content = settings_page
+            case 2:
+                main_body.content = info_page
+        page.update()
+
+    def open_create_dialog(e):
+        page.dialog = creating_dialog
+        creating_dialog.open = True
+        print('create dialog opened')
+        page.update()
+
+    def close_create_dialog(e):
+        creating_dialog.open = False
+        page.update()
+
     rail = ft.NavigationRail(
         selected_index=0,
         label_type=ft.NavigationRailLabelType.SELECTED,
@@ -40,6 +60,7 @@ def main(page: ft.Page) -> None:
         min_width=130,
         min_extended_width=150,
         bgcolor=ft.colors.TRANSPARENT,
+        on_change=change_page,
         leading=Column(
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
             horizontal_alignment=ft.alignment.center,
@@ -47,11 +68,12 @@ def main(page: ft.Page) -> None:
                 ft.FloatingActionButton(
                     icon=ft.icons.ADD,
                     text='Create',
+                    on_click=open_create_dialog
                 ),
 
             ]
         ),
-        group_alignment=-0.9,
+        group_alignment=-0.8,
         indicator_shape=ft.RoundedRectangleBorder(
             radius=10,
 
@@ -79,7 +101,63 @@ def main(page: ft.Page) -> None:
                 padding=40
             )
 
-        ]
+        ],
+    )
+
+    creating_dialog = ft.AlertDialog(
+        title=ft.Text('Create a new command!'),
+        content=Container(
+            bgcolor=ft.colors.BLUE_900,
+            width=600
+        ),
+        content_padding=10,
+        inset_padding=10,
+        actions_padding=10,
+        title_padding=10,
+        actions=[
+            ft.TextButton('Create',
+                          on_click=close_create_dialog
+                          ),
+            ft.TextButton('Cancel',
+                          on_click=close_create_dialog
+                          )
+        ],
+        actions_alignment=ft.MainAxisAlignment.END,
+        shape=ft.RoundedRectangleBorder(radius=10),
+
+    )
+
+    edit_page = Container(
+        expand=True,
+        content=Column(
+            controls=[
+                ft.Text('Edit page')
+            ]
+        )
+    )
+
+    settings_page = Container(
+        expand=True,
+        content=Column(
+            controls=[
+                ft.Text('Settings page')
+            ]
+        )
+    )
+
+    info_page = Container(
+        expand=True,
+        content=Column(
+            controls=[
+                ft.Text('Info page')
+            ]
+        )
+    )
+
+    main_body = Container(
+        expand=True,
+        padding=0,
+        content=edit_page
     )
 
     rail_container = Container(
@@ -120,9 +198,8 @@ def main(page: ft.Page) -> None:
                         ft.VerticalDivider(width=0)
                     ],
                     spacing=0
-                )
-                ,
-
+                ),
+                main_body
             ]
         )
 
