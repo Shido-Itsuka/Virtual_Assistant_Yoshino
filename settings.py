@@ -74,29 +74,47 @@ def main(page: ft.Page) -> None:
             ]
         ),
         group_alignment=-0.8,
+        indicator_color=ft.colors.TRANSPARENT,
         indicator_shape=ft.RoundedRectangleBorder(
             radius=10,
-
         ),
         destinations=[
             ft.NavigationRailDestination(
-                icon=ft.icons.EDIT_OUTLINED,
-                selected_icon=ft.icons.EDIT,
+                icon_content=ft.Icon(
+                    name=ft.icons.EDIT_OUTLINED,
+                    color=ft.colors.WHITE70
+                ),
+                selected_icon_content=ft.Icon(
+                    name=ft.icons.EDIT,
+                    color=ft.colors.WHITE
+                ),
                 label='Edit',
                 padding=40,
 
             ),
 
             ft.NavigationRailDestination(
-                icon=ft.icons.SETTINGS_OUTLINED,
-                selected_icon=ft.icons.SETTINGS,
+                icon_content=ft.Icon(
+                    name=ft.icons.SETTINGS_OUTLINED,
+                    color=ft.colors.WHITE70
+                ),
+                selected_icon_content=ft.Icon(
+                    name=ft.icons.SETTINGS,
+                    color=ft.colors.WHITE
+                ),
                 label='Settings',
                 padding=40
             ),
 
             ft.NavigationRailDestination(
-                icon=ft.icons.INFO_OUTLINED,
-                selected_icon=ft.icons.INFO,
+                icon_content=ft.Icon(
+                    name=ft.icons.INFO_OUTLINED,
+                    color=ft.colors.WHITE70
+                ),
+                selected_icon_content=ft.Icon(
+                    name=ft.icons.INFO,
+                    color=ft.colors.WHITE
+                ),
                 label='Info',
                 padding=40
             )
@@ -165,6 +183,7 @@ def main(page: ft.Page) -> None:
         height=page.window_height,
         padding=0,
         bgcolor=ft.colors.BLACK12,
+        blur=ft.Blur(10, 10, ft.BlurTileMode.MIRROR),
         content=Column(
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
             controls=[
