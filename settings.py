@@ -1,6 +1,7 @@
 import flet as ft
 from flet import Column, Row, Container, TextField, Checkbox
 from flet_core.control import Control
+from subprocess import call
 
 
 def main(page: ft.Page) -> None:
@@ -42,51 +43,167 @@ def main(page: ft.Page) -> None:
                 main_body.content = info_page
         page.update()
 
+    # AlertDialog
     def open_create_dialog(e):
         page.dialog = creating_dialog
         creating_dialog.open = True
         print('create dialog opened')
         page.update()
 
+    # AlertDialog
     def close_create_dialog(e):
+        type_select.value = None
+        command_type_child.content = temp_text
+        alert_dialog_con.content = None
         creating_dialog.open = False
         page.update()
 
+    def create_command(e):
+        if type_select.value:
+            print(f'type selected ({type_select.value})')
+            if True:
+                print('command created!')
+        close_create_dialog(1)
+
     def pick_file_result(e: ft.FilePickerResultEvent):
-        if e.file:
-            selected_file = e.file
+        if e.files:
+            selected_file.value = e.files[0].path
+
         else:
-            selected_file = 'Cancelled'
+            selected_file.value = None
+        # selected_file.update()
+        print(selected_file)
 
     pick_file_dialog = ft.FilePicker(on_result=pick_file_result)
-    selected_file = ''
+    selected_file = ft.Text(value=None, )
+    page.overlay.append(pick_file_dialog)
 
     def on_change_type_select(e):
-        if e.control.value == 'exec':
-            print(e.control.value)
-            command_type_child.content = ft.OutlinedButton(
-                "Выбрать .exe файл",
-                icon=ft.icons.UPLOAD_FILE,
-                style=ft.ButtonStyle(
-                    shape=ft.RoundedRectangleBorder(
-                        radius=10
+        match e.control.value:
+            case 'exec':
+                print(e.control.value)
+                try_exec_file = ft.OutlinedButton(
+                    'Запустить .exe файл',
+                    icon=ft.icons.CHEVRON_RIGHT,
+                    style=ft.ButtonStyle(
+                        shape=ft.RoundedRectangleBorder(
+                            radius=10
+                        )
+                    ),
+                    scale=1.1,
+                    on_click=lambda _: call(
+                        str(selected_file.value)
+                    ) if selected_file.value else print("Path isn't correct:", selected_file.value),
+                )
+                command_type_child.content = try_exec_file
+                alert_dialog_con.content = Container(
+                    Column(
+                        controls=[
+                            Row(
+                                controls=[
+                                    pick_exe := ft.OutlinedButton(
+                                        "Выбрать .exe файл",
+                                        icon=ft.icons.UPLOAD_FILE,
+                                        style=ft.ButtonStyle(
+                                            shape=ft.RoundedRectangleBorder(
+                                                radius=10
+                                            )
+                                        ),
+                                        scale=1.1,
+                                        on_click=lambda _: pick_file_dialog.pick_files(
+                                            dialog_title='Выбор .exe файла',
+                                            allow_multiple=False,
+                                            file_type=ft.FilePickerFileType.CUSTOM,
+                                            allowed_extensions=["exe"],
+                                        ),
+                                    )
+                                ],
+                                alignment=ft.MainAxisAlignment.SPACE_EVENLY
+                            )
+                        ],
+                        alignment=ft.MainAxisAlignment.SPACE_EVENLY,
                     )
-                ),
-                scale=1.1,
-                on_click=lambda _: pick_files(
-                    allow_multiple=False,
+                )
+                page.update()
 
-                ),
-            )
-            page.update()
-        elif e.control.value == 'openweb':
-            print(e.control.value)
-        elif e.control.value == 'websearch':
-            print(e.control.value)
-        elif e.control.value == 'cmd':
-            print(e.control.value)
-        elif e.control.value == 'python':
-            print(e.control.value)
+            case 'openweb':
+                print(e.control.value)
+                try_open_link = ft.OutlinedButton(
+                    'Открыть сайт в браузере',
+                    icon=ft.icons.LINK,
+                    style=ft.ButtonStyle(
+                        shape=ft.RoundedRectangleBorder(
+                            radius=10
+                        )
+                    ),
+                    scale=1.1,
+                    on_click=lambda _: page.launch_url(
+                        url='www.' + link_input.value,
+                    ) if link_input.value else print("Link is empty:", link_input.value),
+                )
+                command_type_child.content = try_open_link
+
+                alert_dialog_con.content = Container(
+                    Column(
+                        controls=[
+                            Row(
+                                controls=[
+                                    link_input := TextField(
+                                        label='Введите ссылку',
+                                        prefix_text='www.',
+                                    )
+                                ],
+                                alignment=ft.MainAxisAlignment.SPACE_EVENLY
+                            )
+                        ],
+                        alignment=ft.MainAxisAlignment.SPACE_EVENLY
+                    )
+
+                )
+
+                page.update()
+
+            case 'websearch':
+                print(e.control.value)
+                try_search = ft.OutlinedButton(
+                    'Открыть поисковой запрос',
+                    icon=ft.icons.SEARCH,
+                    style=ft.ButtonStyle(
+                        shape=ft.RoundedRectangleBorder(
+                            radius=10
+                        )
+                    ),
+                    scale=1.1,
+                    on_click=lambda _: page.launch_url(
+                        url='https://yandex.ru/search/?text=' + '+'.join(search_input.value.split(' ')),
+                    ) if search_input.value else print("Link is empty:", search_input.value),
+                )
+                command_type_child.content = try_search
+
+                alert_dialog_con.content = Container(
+                    Column(
+                        controls=[
+                            Row(
+                                controls=[
+                                    search_input := TextField(
+                                        label='Введите поисковой запрос',
+                                    )
+                                ],
+                                alignment=ft.MainAxisAlignment.SPACE_EVENLY
+                            )
+                        ],
+                        alignment=ft.MainAxisAlignment.SPACE_EVENLY
+                    )
+
+                )
+
+                page.update()
+
+            case 'cmd':
+                print(e.control.value)
+
+            case 'python':
+                print(e.control.value)
 
     rail = ft.NavigationRail(
         selected_index=0,
@@ -161,6 +278,11 @@ def main(page: ft.Page) -> None:
         ],
     )
 
+    temp_text = ft.Text(
+        'Выберите тип команды',
+        size=16
+    )
+
     creating_dialog = ft.AlertDialog(
         title=Row(
             controls=[
@@ -172,7 +294,7 @@ def main(page: ft.Page) -> None:
         modal=True,
         content=Container(
             width=600,
-            border=ft.border.all(1, ft.colors.BLUE_900),
+            # border=ft.border.all(1, ft.colors.BLUE_900),
             content=Column(
                 controls=[
                     Row(
@@ -192,13 +314,17 @@ def main(page: ft.Page) -> None:
                                 on_change=on_change_type_select
                             ),
                             command_type_child := Container(
-                                content=ft.TextField(
-                                    disabled=True,
-                                    label='Ожидает выбора типа команды',
-                                )
+                                content=temp_text,
+                                alignment=ft.alignment.center,
+                                expand=True,
+                                # margin=ft.margin.only(right=10),
                             )
                         ],
+                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN
 
+                    ),
+                    alert_dialog_con := Container(
+                        expand=True,
                     )
                 ]
             )
@@ -209,7 +335,7 @@ def main(page: ft.Page) -> None:
         title_padding=15,
         actions=[
             ft.TextButton('Create',
-                          on_click=close_create_dialog
+                          on_click=create_command
                           ),
         ],
         actions_alignment=ft.MainAxisAlignment.END,
