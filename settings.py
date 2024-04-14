@@ -2,6 +2,9 @@ import flet as ft
 from flet import Column, Row, Container, TextField, Checkbox
 from flet_core.control import Control
 from subprocess import call
+import os
+import commands_management as cm
+import json
 
 
 def main(page: ft.Page) -> None:
@@ -10,8 +13,8 @@ def main(page: ft.Page) -> None:
     page.window_focused = True
     page.window_to_front()
 
-    page.window_width = 900
-    page.window_height = 600
+    page.window_width = 1000
+    page.window_height = 700
 
     page.window_center()
 
@@ -27,26 +30,16 @@ def main(page: ft.Page) -> None:
 
     page.window_prevent_close = True
     page.on_window_event = window_event
-
     page.padding = 0
 
     # page.window_bgcolor = ft.colors.TRANSPARENT
     # page.bgcolor = ft.colors.TRANSPARENT
 
-    def change_page(e):
-        match e.control.selected_index:
-            case 0:
-                main_body.content = edit_page
-            case 1:
-                main_body.content = settings_page
-            case 2:
-                main_body.content = info_page
-        page.update()
-
     # AlertDialog
     def open_create_dialog(e):
         page.dialog = creating_dialog
         creating_dialog.open = True
+        page.title = 'Create - Yoshino'
         print('create dialog opened')
         page.update()
 
@@ -56,6 +49,7 @@ def main(page: ft.Page) -> None:
         command_type_child.content = temp_text
         alert_dialog_con.content = None
         creating_dialog.open = False
+        page.title = ['Edit - Yoshino', 'Settings - Yoshino', 'Info - Yoshino'][rail.selected_index]
         page.update()
 
     def create_command(e):
@@ -63,19 +57,133 @@ def main(page: ft.Page) -> None:
             print(f'type selected ({type_select.value})')
             if True:
                 print('command created!')
+            match type_select.value:
+                case 'exec':
+                    print('exec')
+                    if selected_file.value is not None and command_name.value != '' and voice_request.value != '':
+                        print('exec')
+                        print(selected_file.value)
+                        print(command_name.value)
+                        print(voice_request.value)
+                        cm.create_record(
+                            type_select.value,
+                            command_name.value,
+                            selected_file.value,
+                            voice_request.value
+                        )
+                        print('command created!\n' + '-' * 20)
+                        selected_file.value = None
+                        command_name.value = ''
+                        voice_request.value = ''
+                case 'openweb':
+                    print('openweb')
+                    if link_input.value != '' and command_name.value != '' and voice_request.value != '':
+                        print('openweb')
+                        print(link_input.value)
+                        print(command_name.value)
+                        print(voice_request.value)
+                        cm.create_record(
+                            type_select.value,
+                            command_name.value,
+                            'www.' + link_input.value,
+                            voice_request.value
+                        )
+                        print('command created!\n' + '-' * 20)
+                        link_input.value = ''
+                        command_name.value = ''
+                        voice_request.value = ''
+                case 'websearch':
+                    print('websearch')
+                    if search_input.value != '' and command_name.value != '' and voice_request.value != '':
+                        print('websearch')
+                        print(search_input.value)
+                        print(command_name.value)
+                        print(voice_request.value)
+                        cm.create_record(
+                            type_select.value,
+                            command_name.value,
+                            search_input.value,
+                            voice_request.value
+                        )
+                        print('command created!\n' + '-' * 20)
+                        search_input.value = ''
+                        command_name.value = ''
+                        voice_request.value = ''
+
         close_create_dialog(1)
+
+    def show_commands(e=None):
+        with open('commands.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            commands.content.controls.clear()
+            for record in data:
+                print('\n', data[record], '\n')
+
+                command = Command(
+                    data[record]["id"],
+                    data[record]['command_type'],
+                    data[record]['command_name'],
+                    data[record]['command_string'],
+                    data[record]['voice_request']
+                )
+                commands.content.controls.append(command)
+            f.seek(0)
+        page.update()
+        print(20 * '-')
+
+    def change_page(e):
+        match e.control.selected_index:
+            case 0:
+                main_body.content = edit_page
+                show_commands()
+            case 1:
+                main_body.content = settings_page
+            case 2:
+                main_body.content = info_page
+        page.title = ['Edit - Yoshino', 'Settings - Yoshino', 'Info - Yoshino'][rail.selected_index]
+        page.update()
 
     def pick_file_result(e: ft.FilePickerResultEvent):
         if e.files:
             selected_file.value = e.files[0].path
+            selected_file_label.value = e.files[0].name
+            selected_file_label.update()
 
         else:
             selected_file.value = None
+            selected_file_label.value = 'Файл не выбран'
+            selected_file_label.update()
         # selected_file.update()
         print(selected_file)
 
     pick_file_dialog = ft.FilePicker(on_result=pick_file_result)
-    selected_file = ft.Text(value=None, )
+
+    selected_file = ft.Text(value=None)
+    link_input = TextField(
+        label='Введите ссылку',
+        prefix_text='www.',
+        width=500
+    )
+    search_input = TextField(
+        label='Введите поисковой запрос',
+        suffix_text='YA.RU',
+        width=500
+    )
+    selected_file_label = ft.Text(
+        value='Файл не выбран',
+        size=20,
+    )
+    command_name = TextField(
+        label='Название команды',
+        width=500
+    )
+    voice_request = TextField(
+        label='Запрос голосом',
+        multiline=True,
+        max_lines=4,
+        width=500
+    )
+
     page.overlay.append(pick_file_dialog)
 
     def on_change_type_select(e):
@@ -116,7 +224,20 @@ def main(page: ft.Page) -> None:
                                             file_type=ft.FilePickerFileType.CUSTOM,
                                             allowed_extensions=["exe"],
                                         ),
-                                    )
+                                    ),
+                                    selected_file_label,
+                                ],
+                                alignment=ft.MainAxisAlignment.SPACE_EVENLY
+                            ),
+                            Row(
+                                controls=[
+                                    command_name
+                                ],
+                                alignment=ft.MainAxisAlignment.SPACE_EVENLY
+                            ),
+                            Row(
+                                controls=[
+                                    voice_request
                                 ],
                                 alignment=ft.MainAxisAlignment.SPACE_EVENLY
                             )
@@ -148,10 +269,19 @@ def main(page: ft.Page) -> None:
                         controls=[
                             Row(
                                 controls=[
-                                    link_input := TextField(
-                                        label='Введите ссылку',
-                                        prefix_text='www.',
-                                    )
+                                    link_input
+                                ],
+                                alignment=ft.MainAxisAlignment.SPACE_EVENLY
+                            ),
+                            Row(
+                                controls=[
+                                    command_name
+                                ],
+                                alignment=ft.MainAxisAlignment.SPACE_EVENLY
+                            ),
+                            Row(
+                                controls=[
+                                    voice_request
                                 ],
                                 alignment=ft.MainAxisAlignment.SPACE_EVENLY
                             )
@@ -185,9 +315,19 @@ def main(page: ft.Page) -> None:
                         controls=[
                             Row(
                                 controls=[
-                                    search_input := TextField(
-                                        label='Введите поисковой запрос',
-                                    )
+                                    search_input
+                                ],
+                                alignment=ft.MainAxisAlignment.SPACE_EVENLY
+                            ),
+                            Row(
+                                controls=[
+                                    command_name
+                                ],
+                                alignment=ft.MainAxisAlignment.SPACE_EVENLY
+                            ),
+                            Row(
+                                controls=[
+                                    voice_request
                                 ],
                                 alignment=ft.MainAxisAlignment.SPACE_EVENLY
                             )
@@ -200,15 +340,49 @@ def main(page: ft.Page) -> None:
                 page.update()
 
             case 'cmd':
+
                 print(e.control.value)
+                try_run_com = ft.OutlinedButton(
+                    'Выполнить в cmd',
+                    icon=ft.icons.CHEVRON_RIGHT,
+                    style=ft.ButtonStyle(
+                        shape=ft.RoundedRectangleBorder(
+                            radius=10
+                        )
+                    ),
+                    scale=1.1,
+                    on_click=lambda _: os.system(command_input.value)
+                    if command_input.value else print("Command is empty:", command_input.value),
+                )
+                command_type_child.content = try_run_com
+
+                alert_dialog_con.content = Container(
+                    Column(
+                        controls=[
+                            Row(
+                                controls=[
+                                    command_input := TextField(
+                                        label='Введите команду',
+                                    )
+                                ],
+                                alignment=ft.MainAxisAlignment.SPACE_EVENLY
+                            )
+                        ],
+                        alignment=ft.MainAxisAlignment.SPACE_EVENLY
+                    )
+
+                )
+
+                page.update()
 
             case 'python':
                 print(e.control.value)
+                page.update()
 
     rail = ft.NavigationRail(
         selected_index=0,
         label_type=ft.NavigationRailLabelType.SELECTED,
-        height=500,
+        height=600,
         width=130,
         min_width=130,
         min_extended_width=200,
@@ -343,11 +517,151 @@ def main(page: ft.Page) -> None:
 
     )
 
+    def request_commands():
+        return {}
+
+    def star_click(e):
+        if e.control.icon == ft.icons.STAR_OUTLINE_ROUNDED:
+            e.control.icon = ft.icons.STAR_RATE_ROUNDED
+            e.control.icon_color = ft.colors.YELLOW
+        else:
+            e.control.icon = ft.icons.STAR_OUTLINE_ROUNDED
+            e.control.icon_color = ft.colors.WHITE38
+        page.update()
+
+    class Command(ft.Card):
+        def __init__(self, id, ctype, name, string, voice):
+            super().__init__(
+                width=100,
+                height=70,
+                show_border_on_foreground=True,
+                is_semantic_container=True,
+                expand=True
+            )
+            self.id = id
+            self.type = ctype
+            self.name = name
+            self.string = string
+            self.voice = voice
+
+        def build(self):
+            self.container = Container(
+                expand=True,
+                padding=ft.padding.only(10, 0, 10),
+                content=Row(
+                    controls=[
+                        Row(
+                            controls=[
+                                ft.IconButton(
+                                    icon=ft.icons.STAR_OUTLINE_ROUNDED,
+                                    icon_color=ft.colors.WHITE38,
+                                    on_click=star_click,
+                                    icon_size=30
+                                ),
+                                ft.Text(self.name)
+                            ],
+                            expand=True,
+                            alignment=ft.MainAxisAlignment.START
+                        ),
+                        Row(
+                            controls=[
+                                ft.IconButton(
+                                    icon=ft.icons.PLAY_ARROW_ROUNDED,
+                                    icon_color=ft.colors.GREEN_500,
+                                    icon_size=25,
+                                    on_click=self.run
+                                ),
+                                ft.IconButton(
+                                    icon=ft.icons.EDIT_ROUNDED,
+                                    icon_color=ft.colors.AMBER_600,
+                                    icon_size=20,
+                                    on_click=self.edit
+                                ),
+                                ft.IconButton(
+                                    icon=ft.icons.DELETE_ROUNDED,
+                                    icon_color=ft.colors.RED_600,
+                                    icon_size=20,
+                                    on_click=self.delete
+                                )
+                            ],
+                            width=150,
+                            spacing=5,
+                            alignment=ft.MainAxisAlignment.END
+                        )
+
+                    ],
+                    spacing=10,
+                    expand=True,
+                )
+            )
+            super().__init__(
+                content=self.container,
+                height=70,
+
+            )
+            return self.container
+
+        async def run(self, e):
+            match self.type:
+                case 'exec':
+                    call(self.string)
+                case 'openweb':
+                    page.launch_url(self.string)
+                case 'websearch':
+                    page.launch_url(f"'https://yandex.ru/search/?text='{self.string}'")
+                case 'cmd':
+                    print('Doesnt work')
+                case 'python':
+                    print('Doesnt work')
+
+        async def edit(self, e):
+            print('edit')
+
+        async def delete(self, e):
+            cm.delete_record(self.id)
+            await page.update()
+
     edit_page = Container(
+        padding=ft.padding.only(0, 10, 10),
         expand=True,
         content=Column(
             controls=[
-                ft.Text('Edit page')
+                Row(
+                    controls=[
+                        ft.Text('Тут будут фильтры'),
+                        ft.SearchBar(
+                            bar_hint_text="Поиск команды...",
+                            view_hint_text="Введите название команды...",
+                            width=500
+                        ),
+                        ft.IconButton(
+                            icon=ft.icons.REFRESH_ROUNDED,
+                            icon_color=ft.colors.WHITE,
+                            icon_size=30,
+                            on_click=show_commands
+                        )
+                    ],
+                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN
+                ),
+                commands := Container(
+                    expand=True,
+                    margin=ft.margin.only(10, 10, 10),
+                    padding=ft.padding.only(10, 10, 10),
+                    border=ft.border.only(
+                        ft.BorderSide(1, ft.colors.WHITE12),
+                        ft.BorderSide(1, ft.colors.WHITE12),
+                        ft.BorderSide(1, ft.colors.WHITE12),
+                    ),
+                    content=Column(
+                        controls=[
+
+                        ],
+                        scroll=ft.ScrollMode.HIDDEN,
+                        expand=True,
+                        spacing=5,
+
+                    )
+                )
             ]
         )
     )
@@ -422,6 +736,9 @@ def main(page: ft.Page) -> None:
         blur=ft.Blur(10, 10, ft.BlurTileMode.MIRROR)
 
     )
+
+    page.title = ['Edit - Yoshino', 'Settings - Yoshino', 'Info - Yoshino'][rail.selected_index]
+    show_commands()
 
     # ВАЖНО ПЕРЕДЕЛАТЬ ВСЁ, ЧТО РАНЬШЕ БЫЛО SETTINGS, В MAIN_MENU В settings.py & widget.py
     page.add(main_container)
