@@ -38,7 +38,7 @@
         "id": 5,
         "command_type": "openweb",
         "command_name": "open youtube",
-        "command_string": "youtube.com",
+        "command_string": "www.youtube.com",
         "voice_request": "youtube"
     },
     "6": {

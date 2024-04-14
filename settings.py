@@ -606,9 +606,11 @@ def main(page: ft.Page) -> None:
                 case 'exec':
                     call(self.string)
                 case 'openweb':
+                    print(self.string)
                     page.launch_url(self.string)
                 case 'websearch':
-                    page.launch_url(f"'https://yandex.ru/search/?text='{self.string}'")
+                    print(self.string)
+                    page.launch_url('https://yandex.ru/search/?text=' + '+'.join(self.string.split(' ')))
                 case 'cmd':
                     print('Doesnt work')
                 case 'python':
