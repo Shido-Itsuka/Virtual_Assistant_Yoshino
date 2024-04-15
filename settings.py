@@ -411,7 +411,8 @@ def main(page: ft.Page) -> None:
                     on_click=open_create_dialog,
                     shape=ft.RoundedRectangleBorder(
                         radius=10
-                    )
+                    ),
+                    mouse_cursor=ft.MouseCursor.CLICK,
                 ),
 
             ]
@@ -758,6 +759,19 @@ def main(page: ft.Page) -> None:
             cm.delete_record(self.id)
             show_commands()
 
+    def search_commands(e):
+        for com in commands.controls:
+            if com.name.lower().find(com_search.value.lower()) != -1:
+                com.visible = True
+            else:
+                com.visible = False
+        page.update()
+
+    def search_clear(e):
+        com_search.value = ''
+        search_commands(0)
+        page.update()
+
     edit_page = Container(
         padding=ft.padding.only(0, 10, 10),
         expand=True,
@@ -766,10 +780,29 @@ def main(page: ft.Page) -> None:
                 Row(
                     controls=[
                         ft.Text('Тут будут фильтры'),
-                        ft.SearchBar(
-                            bar_hint_text="Поиск команды...",
-                            view_hint_text="Введите название команды...",
-                            width=500
+                        Container(
+                            content=Row(
+                                expand=True,
+                                controls=[
+                                    com_search := ft.TextField(
+                                        expand=True,
+                                        border=ft.InputBorder.NONE,
+                                        filled=False,
+                                        content_padding=ft.padding.symmetric(0, 10),
+                                        hint_text='Поиск',
+                                        on_change=search_commands
+                                    ),
+                                    ft.IconButton(
+                                        icon=ft.icons.CLEAR_ROUNDED,
+                                        on_click=search_clear
+                                    )
+                                ],
+                                spacing=0
+                            ),
+                            width=500,
+                            bgcolor='#282f36',
+                            border_radius=50,
+                            padding=5
                         ),
                         ft.IconButton(
                             icon=ft.icons.REFRESH_ROUNDED,
@@ -778,7 +811,8 @@ def main(page: ft.Page) -> None:
                             on_click=show_commands
                         )
                     ],
-                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN
+                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                    vertical_alignment=ft.CrossAxisAlignment.CENTER
                 ),
                 Container(
                     expand=True,
@@ -875,5 +909,6 @@ def main(page: ft.Page) -> None:
 
 if __name__ == '__main__':
     abc = ft.app(target=main,
-                 assets_dir='assets'
+                 assets_dir='assets',
+                 name='Yoshino',
                  )
