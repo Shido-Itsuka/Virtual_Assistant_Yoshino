@@ -7,17 +7,17 @@
         "voice_request": "voice_request"
     },
     "1": {
-        "id": 2,
+        "id": 1,
         "command_type": "exec",
-        "command_name": "asd",
+        "command_name": "IP-Tree",
         "command_string": "C:\\Users\\truso\\Downloads\\ip-tree calculator.exe",
         "voice_request": "asd"
     },
     "2": {
         "id": 2,
         "command_type": "exec",
-        "command_name": "asd",
-        "command_string": "C:\\Users\\truso\\Downloads\\DiscordSetup.exe",
+        "command_name": "empty",
+        "command_string": "",
         "voice_request": "asd"
     },
     "3": {
@@ -43,37 +43,16 @@
     },
     "6": {
         "id": 6,
-        "command_type": "websearch",
-        "command_name": "\u041e \u0441\u043b\u043e\u043d\u0430\u0445",
-        "command_string": "\u043a\u0442\u043e \u0442\u0430\u043a\u0438\u0435 \u0441\u043b\u043e\u043d\u044b?",
-        "voice_request": "\u043a\u0442\u043e \u0442\u0430\u043a\u0438\u0435 \u0441\u043b\u043e\u043d\u044b?"
-    },
-    "7": {
-        "id": 7,
-        "command_type": "websearch",
-        "command_name": "\u043f\u0440\u043e \u043e\u0431\u043b\u0430\u043a\u043e",
-        "command_string": "\u043e\u0431\u043b\u0430\u043a\u043e \u044d\u0442\u043e?",
-        "voice_request": "\u0447\u0442\u043e \u0442\u0430\u043a\u043e\u0435 \u043e\u0431\u043b\u0430\u043a\u043e"
-    },
-    "8": {
-        "id": 8,
         "command_type": "exec",
         "command_name": "betterdiscord",
         "command_string": "C:\\Users\\truso\\Downloads\\BetterDiscord-Windows.exe",
         "voice_request": "upgrade my discord"
     },
-    "9": {
-        "id": 9,
-        "command_type": "openweb",
-        "command_name": "wiki",
-        "command_string": "www.wiki.org",
-        "voice_request": "open wiki"
-    },
-    "10": {
-        "id": 10,
+    "8": {
+        "id": 8,
         "command_type": "websearch",
-        "command_name": "\u043a\u043e\u043c\u0430\u0440\u0443 \u043a\u043e\u0448\u043a\u0430 \u0431\u0440\u0430\u0443\u0437\u0435\u0440",
-        "command_string": "\u043a\u043e\u0448\u0435\u0447\u043a\u0430 \u043a\u043e\u043c\u0430\u0440\u0443",
-        "voice_request": "\u043a\u0442\u043e \u0442\u0430\u043a\u0430\u044f \u043a\u043e\u043c\u0430\u0440\u0443?"
+        "command_name": "проверка связи",
+        "command_string": "проверка связи",
+        "voice_request": "проверка связи"
     }
 }
