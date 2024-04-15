@@ -17,6 +17,8 @@ def main(page: ft.Page) -> None:
     page.window_height = 700
 
     page.window_center()
+    page.window_maximizable = False
+    page.window_resizable = False
 
     page.theme = ft.Theme(
         color_scheme_seed='#5a84ff'
@@ -109,13 +111,24 @@ def main(page: ft.Page) -> None:
                         search_input.value = ''
                         command_name.value = ''
                         voice_request.value = ''
+            show_commands()
 
         close_create_dialog(1)
 
+    commands = Column(
+        controls=[
+
+        ],
+        scroll=ft.ScrollMode.HIDDEN,
+        expand=True,
+        spacing=5,
+        width=999999
+    )
+
     def show_commands(e=None):
-        with open('commands.json', 'r', encoding='utf-8') as f:
+        with open('commands.json', 'r') as f:
             data = json.load(f)
-            commands.content.controls.clear()
+            commands.controls.clear()
             for record in data:
                 print('\n', data[record], '\n')
 
@@ -126,7 +139,7 @@ def main(page: ft.Page) -> None:
                     data[record]['command_string'],
                     data[record]['voice_request']
                 )
-                commands.content.controls.append(command)
+                commands.controls.append(command)
             f.seek(0)
         page.update()
         print(20 * '-')
@@ -517,9 +530,6 @@ def main(page: ft.Page) -> None:
 
     )
 
-    def request_commands():
-        return {}
-
     def star_click(e):
         if e.control.icon == ft.icons.STAR_OUTLINE_ROUNDED:
             e.control.icon = ft.icons.STAR_RATE_ROUNDED
@@ -528,6 +538,127 @@ def main(page: ft.Page) -> None:
             e.control.icon = ft.icons.STAR_OUTLINE_ROUNDED
             e.control.icon_color = ft.colors.WHITE38
         page.update()
+
+    def open_edit_dialog(e):
+        print(e.id, e.type, e.name, e.string, e.voice)
+        temp_var_command.data = [e.id, e.type, e.name, e.string, e.voice]
+        edit_com_name.value = e.name
+        edit_com_string.value = e.string
+        edit_com_voice.value = e.voice
+
+        page.dialog = edit_dialog
+        edit_dialog.open = True
+        page.title = 'Edit - Yoshino'
+        print('edit dialog opened')
+        page.update()
+
+    # id, type, name, string, voice
+    temp_var_command = ft.Text(data=['', '', '', '', ''])
+
+    def close_edit_dialog(e):
+        temp_var_command.data = ['', '', '', '', '']
+
+        edit_dialog.open = False
+        page.title = ['Edit - Yoshino', 'Settings - Yoshino', 'Info - Yoshino'][rail.selected_index]
+        show_commands()
+        page.update()
+
+    def update_command(e):
+        page.update()
+        print(temp_var_command.data)
+        cm.update_record(
+            temp_var_command.data[0],
+            temp_var_command.data[1],
+            edit_com_name.value,
+            edit_com_string.value,
+            edit_com_voice.value)
+        print('Successful')
+        close_edit_dialog(e)
+
+    def refresh_edit_field(e, i):  # строки не обновляются
+        match i:
+            case 0:
+                edit_com_name.value = temp_var_command.data[2]
+            case 1:
+                edit_com_string.value = temp_var_command.data[3]
+            case 2:
+                edit_com_voice.value = temp_var_command.data[4]
+        page.update()
+        print('well')
+
+    edit_dialog = ft.AlertDialog(
+        title=Row(
+            controls=[
+                ft.Text('Edit a command'),
+                ft.IconButton(ft.icons.CLOSE, on_click=close_edit_dialog)
+            ],
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN
+        ),
+        content=Container(
+            width=600,
+            height=400,
+            # border=ft.border.all(1, ft.colors.BLUE_900),
+            content=Column(
+                controls=[
+                    Row(
+                        controls=[
+                            edit_com_name := TextField(
+                                label='Название команды',
+                                width=500,
+                                value='',
+                            ),
+                            ft.IconButton(
+                                icon=ft.icons.REFRESH,
+                                on_click=lambda e: refresh_edit_field(0, 0)
+                            )
+                        ],
+                        alignment=ft.MainAxisAlignment.START
+                    ),
+                    Row(
+                        controls=[
+                            edit_com_string := TextField(
+                                label='Команда',
+                                width=500,
+                                value='',
+                            ),
+                            ft.IconButton(
+                                icon=ft.icons.REFRESH,
+                                on_click=lambda e: refresh_edit_field(0, 1)
+                            )
+                        ],
+                        alignment=ft.MainAxisAlignment.START
+                    ),
+                    Row(
+                        controls=[
+                            edit_com_voice := TextField(
+                                label='Голос',
+                                width=500,
+                                value=''
+                            ),
+                            ft.IconButton(
+                                icon=ft.icons.REFRESH,
+                                on_click=lambda e: refresh_edit_field(0, 2)
+                            )
+                        ],
+                        alignment=ft.MainAxisAlignment.START
+                    ),
+                ],
+                alignment=ft.MainAxisAlignment.SPACE_EVENLY
+            )
+        ),
+        content_padding=ft.padding.only(15, 0, 15, 0),
+        inset_padding=15,
+        actions_padding=15,
+        title_padding=15,
+        actions=[
+            ft.TextButton('Save',
+                          on_click=update_command
+                          ),
+        ],
+        actions_alignment=ft.MainAxisAlignment.END,
+        shape=ft.RoundedRectangleBorder(radius=10),
+        on_dismiss=close_edit_dialog
+    )
 
     class Command(ft.Card):
         def __init__(self, id, ctype, name, string, voice):
@@ -569,19 +700,19 @@ def main(page: ft.Page) -> None:
                                     icon=ft.icons.PLAY_ARROW_ROUNDED,
                                     icon_color=ft.colors.GREEN_500,
                                     icon_size=25,
-                                    on_click=self.run
+                                    on_click=self.run,
                                 ),
                                 ft.IconButton(
                                     icon=ft.icons.EDIT_ROUNDED,
                                     icon_color=ft.colors.AMBER_600,
                                     icon_size=20,
-                                    on_click=self.edit
+                                    on_click=self.edit,
                                 ),
                                 ft.IconButton(
                                     icon=ft.icons.DELETE_ROUNDED,
                                     icon_color=ft.colors.RED_600,
                                     icon_size=20,
-                                    on_click=self.delete
+                                    on_click=self.delete,
                                 )
                             ],
                             width=150,
@@ -602,26 +733,30 @@ def main(page: ft.Page) -> None:
             return self.container
 
         async def run(self, e):
-            match self.type:
-                case 'exec':
-                    call(self.string)
-                case 'openweb':
-                    print(self.string)
-                    page.launch_url(self.string)
-                case 'websearch':
-                    print(self.string)
-                    page.launch_url('https://yandex.ru/search/?text=' + '+'.join(self.string.split(' ')))
-                case 'cmd':
-                    print('Doesnt work')
-                case 'python':
-                    print('Doesnt work')
+            if self.string != '':
+                match self.type:
+                    case 'exec':
+                        call(self.string)
+                    case 'openweb':
+                        print(self.string)
+                        page.launch_url(self.string)
+                    case 'websearch':
+                        print(self.string)
+                        page.launch_url('https://yandex.ru/search/?text=' + '+'.join(self.string.split(' ')))
+                    case 'cmd':
+                        print('Doesnt work')
+                    case 'python':
+                        print('Doesnt work')
+            else:
+                print('self.string is empty')
 
         async def edit(self, e):
             print('edit')
+            open_edit_dialog(self)
 
         async def delete(self, e):
             cm.delete_record(self.id)
-            await page.update()
+            show_commands()
 
     edit_page = Container(
         padding=ft.padding.only(0, 10, 10),
@@ -645,7 +780,7 @@ def main(page: ft.Page) -> None:
                     ],
                     alignment=ft.MainAxisAlignment.SPACE_BETWEEN
                 ),
-                commands := Container(
+                Container(
                     expand=True,
                     margin=ft.margin.only(10, 10, 10),
                     padding=ft.padding.only(10, 10, 10),
@@ -654,15 +789,7 @@ def main(page: ft.Page) -> None:
                         ft.BorderSide(1, ft.colors.WHITE12),
                         ft.BorderSide(1, ft.colors.WHITE12),
                     ),
-                    content=Column(
-                        controls=[
-
-                        ],
-                        scroll=ft.ScrollMode.HIDDEN,
-                        expand=True,
-                        spacing=5,
-
-                    )
+                    content=commands
                 )
             ]
         )
@@ -736,7 +863,6 @@ def main(page: ft.Page) -> None:
             ]
         ),
         blur=ft.Blur(10, 10, ft.BlurTileMode.MIRROR)
-
     )
 
     page.title = ['Edit - Yoshino', 'Settings - Yoshino', 'Info - Yoshino'][rail.selected_index]
