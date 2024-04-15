@@ -33,7 +33,7 @@ def create_record(command_type, command_name, command_string, voice_request):
             "voice_request": voice_request
         }
         f.seek(0)
-        json.dump(data, f, indent=4)
+        json.dump(data, f, indent=4, ensure_ascii=False)
 
 
 def read_records():
@@ -58,20 +58,17 @@ def update_record(id, command_type, command_name, command_string, voice_request)
     command_string: Новая строка команды.
     voice_request: Голосовой запрос
   """
-    with open(JSON_PATH, 'r+') as f:
+    with open(JSON_PATH, 'r') as f:
         data = json.load(f)
-        for i, record in enumerate(data):
-            if record["id"] == id:
-                data[str(id)] = {  # Преобразовать id в строку
-                    "id": id,
-                    "command_type": command_type,
-                    "command_name": command_name,
-                    "command_string": command_string,
-                    "voice_request": voice_request
-                }
-                break
-        f.seek(0)
-        json.dump(data, f, indent=4)
+        data[str(id)] = {  # Преобразовать id в строку
+            "id": id,
+            "command_type": command_type,
+            "command_name": command_name,
+            "command_string": command_string,
+            "voice_request": voice_request
+        }
+        with open(JSON_PATH, 'w') as w:
+            json.dump(data, w, indent=4, ensure_ascii=False)
 
 
 def delete_record(id):
@@ -81,14 +78,12 @@ def delete_record(id):
   Args:
     id: Идентификатор записи.
   """
-    with open(JSON_PATH, 'r+') as f:
+    with open(JSON_PATH, 'r') as f:
         data = json.load(f)
-        for i, record in enumerate(data):
-            if record["id"] == id:
-                del data[str(id)]  # Преобразовать id в строку
-                break
-        f.seek(0)
-        json.dump(data, f, indent=4)
+        print(data, '\nfound\n')
+        del data[str(id)]
+        with open(JSON_PATH, 'w') as w:
+            json.dump(data, w, indent=4, ensure_ascii=False)
 
 
 print(read_records())
