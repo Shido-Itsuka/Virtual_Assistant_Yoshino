@@ -802,7 +802,14 @@ def main(page: ft.Page) -> None:
                             width=500,
                             bgcolor='#282f36',
                             border_radius=50,
-                            padding=5
+                            padding=5,
+                            shadow=ft.BoxShadow(
+                                color=ft.colors.BLACK26,
+                                spread_radius=1,
+                                blur_radius=15,
+                                offset=ft.Offset(0, 5),
+                                blur_style=ft.ShadowBlurStyle.NORMAL
+                            )
                         ),
                         ft.IconButton(
                             icon=ft.icons.REFRESH_ROUNDED,
